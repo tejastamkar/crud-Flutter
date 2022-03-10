@@ -65,6 +65,9 @@ class _UpdateitemsState extends State<Updateitems> {
               height: 45,
               width: MediaQuery.of(context).size.width,
               child: ElevatedButton.icon(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                        Color.fromARGB(255, 45, 0, 207))),
                 onPressed: () async {
                   await FirebaseFirestore.instance
                       .runTransaction((Transaction myTransaction) async {
