@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crudflutter/additem.dart';
+import 'package:crudflutter/scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:crudflutter/card.dart';
 
@@ -15,6 +16,8 @@ class Cards extends StatefulWidget {
 class _CardsState extends State<Cards> {
   final Stream<QuerySnapshot> datapeople =
       FirebaseFirestore.instance.collection('People').snapshots();
+
+  int index = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -36,26 +39,32 @@ class _CardsState extends State<Cards> {
             return Text('loading data');
           }
           final data = snapshot.requireData;
+          // setState(() {
+          //   index = data.size;
+          // });
           return ListView.builder(
             shrinkWrap: true,
             itemCount: data.size,
             itemBuilder: (context, index) {
-              return Padding(
-                // Column(children: [
-                padding: const EdgeInsets.all(10.0),
-                child: ListCard(
-                    name: '${data.docs[index]['Name']}',
-                    age: '${data.docs[index]['Age']}',
-                    personid: snapshot.data!.docs[index].reference,
-                    delete: () async {
-                      await FirebaseFirestore.instance
-                          .runTransaction((Transaction myTransaction) async {
-                        myTransaction
-                            .delete(snapshot.data!.docs[index].reference);
-                      });
-                    }),
-                // ),D
-                // ],
+              return Dismissible(
+                key: UniqueKey(),
+                child: Padding(
+                  // Column(children: [
+                  padding: const EdgeInsets.all(10.0),
+                  child: ListCard(
+                      name: '${data.docs[index]['Name']}',
+                      age: '${data.docs[index]['Age']}',
+                      personid: snapshot.data!.docs[index].reference,
+                      delete: () async {
+                        await FirebaseFirestore.instance
+                            .runTransaction((Transaction myTransaction) async {
+                          myTransaction
+                              .delete(snapshot.data!.docs[index].reference);
+                        });
+                      }),
+                  // ),D
+                  // ],
+                ),
               );
             },
           );
@@ -73,6 +82,35 @@ class _CardsState extends State<Cards> {
         backgroundColor: Color.fromARGB(255, 45, 0, 207),
         child: const Icon(Icons.add),
       ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0),
+        child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              primary: Color.fromARGB(255, 45, 0, 207),
+            ),
+            onPressed: () {
+              Navigator.of(context).push(_createRoute());
+            },
+            child: Text('Next Page')),
+      ),
     );
   }
+}
+
+Route _createRoute() {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => const Scanner(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(0.0, 1.0);
+      const end = Offset.zero;
+      const curve = Curves.easeIn;
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
 }

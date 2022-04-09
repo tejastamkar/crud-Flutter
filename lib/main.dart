@@ -5,7 +5,12 @@ import 'package:crudflutter/cards.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MaterialApp(
-    home: Cards(),
+  runApp(MaterialApp(
+    theme: ThemeData(
+        pageTransitionsTheme: const PageTransitionsTheme(builders: {
+      TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+    })),
+    home: const Cards(),
   ));
 }
